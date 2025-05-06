@@ -13,7 +13,7 @@ const rolePermissions = {
 
 const UserContext = createContext(undefined)
 
-// Initial users with permissions
+// Initial users with permissions (without passwords)
 const initialUsers = [
   {
     id: "1",
@@ -79,29 +79,31 @@ export function UserProvider({ children }) {
   }
 
   const deleteUser = (id) => {
+    // Prevent deleting the last admin
+    const remainingAdmins = users.filter((u) => u.role === "admin" && u.id !== id).length
+    if (users.find((u) => u.id === id)?.role === "admin" && remainingAdmins === 0) {
+      console.error("Cannot delete the last admin user")
+      return false
+    }
+
     setUsers(users.filter((user) => user.id !== id))
 
     // If the deleted user is the current user, set current user to null
     if (currentUser && currentUser.id === id) {
       setCurrentUser(null)
     }
-  }
-
-  const hasPermission = (permission) => {
-    if (!currentUser) return false
-    return currentUser.permissions[permission] || false
+    
+    return true
   }
 
   return (
     <UserContext.Provider
       value={{
-        isAuthenticated,
         currentUser,
         users,
         addUser,
         updateUser,
         deleteUser,
-        hasPermission,
         isLoading,
       }}
     >
