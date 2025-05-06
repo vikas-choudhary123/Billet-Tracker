@@ -13,7 +13,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'), // <-- Add this alias
     },
   },
-  base: './',
+  // base: './',
+  base: '/',
   build: {
     outDir: 'dist',
   },
