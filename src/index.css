@@ -1,1 +1,104 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --white: 0 0% 100%;
+    --black: 0 0% 0%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    /* Blue color palette */
+    --blue-50: 221 83% 96%;
+    --blue-100: 221 83% 90%;
+    --blue-200: 221 83% 80%;
+    --blue-300: 221 83% 70%;
+    --blue-400: 221 83% 60%;
+    --blue-500: 221 83% 53%;
+    --blue-600: 221 83% 45%;
+    --blue-700: 221 83% 37%;
+    --blue-800: 221 83% 29%;
+    --blue-900: 221 83% 21%;
+
+    /* Gray color palette */
+    --gray-50: 210 40% 98%;
+    --gray-100: 210 40% 96%;
+    --gray-200: 214 32% 91%;
+    --gray-300: 213 27% 84%;
+    --gray-400: 215 20% 65%;
+    --gray-500: 215 16% 47%;
+    --gray-600: 215 14% 34%;
+    --gray-700: 215 17% 24%;
+    --gray-800: 222 47% 11%;
+    --gray-900: 222 47% 8%;
+
+    /* Red color palette */
+    --red-50: 0 84% 96%;
+    --red-100: 0 84% 90%;
+    --red-200: 0 84% 80%;
+    --red-300: 0 84% 70%;
+    --red-400: 0 84% 60%;
+    --red-500: 0 84% 50%;
+    --red-600: 0 84% 40%;
+    --red-700: 0 84% 30%;
+    --red-800: 0 84% 20%;
+    --red-900: 0 84% 10%;
+
+    /* Border and other variables */
+    --border: 214.3 31.8% 91.4%;
+  }
+
+  /* Dark mode variations */
+  .dark {
+    /* Add dark mode color variations if needed */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+  }
+}
+
+/* Add some global styles to ensure light mode appearance */
+body {
+  background-color: white;
+  color: #333;
+}
+
+/* Add utility classes for form cards */
+.form-card {
+  @apply bg-white border border-gray-200 shadow-sm;
+}
+
+.form-card-header {
+  @apply bg-white border-b border-gray-100;
+}
+
+.dashboard-card {
+  @apply bg-white border border-gray-200 shadow-sm;
+}
+
+.dashboard-card-header {
+  @apply bg-white border-b border-gray-100 pb-2;
+}
+
+.gradient-bg-primary {
+  @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-white;
+}
+
+.status-badge-approved {
+  @apply bg-green-100 text-green-800 border-green-200;
+}
+
+.status-badge-pending {
+  @apply bg-amber-100 text-amber-800 border-amber-200;
+}
+
+.status-badge-in-transit {
+  @apply bg-blue-100 text-blue-800 border-blue-200;
+}
+
+.status-badge-passed {
+  @apply bg-purple-100 text-purple-800 border-purple-200;
+}
+
+
