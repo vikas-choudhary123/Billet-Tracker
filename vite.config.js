@@ -1,21 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import path from 'path' // <-- Add this
 
+// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
   ],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'), // <-- Add this alias
-    },
-  },
-  // base: './',
-  base: '/',
+  base: "./", // Add this if assets are not loading
   build: {
-    outDir: 'dist',
+    outDir: "dist",
   },
 })

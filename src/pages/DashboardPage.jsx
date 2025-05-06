@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useBilletData } from "@/lib/billet-context"
-import { useAuth } from "@/lib/auth-context"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
+import { useBilletData } from "../lib/billet-context"
+import { useAuth } from "../lib/auth-context"
 import {
   RefreshCw,
   Factory,
@@ -16,10 +16,10 @@ import {
   CheckCircle2,
   AlertTriangle,
 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import Header from "@/components/header"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Progress } from "@/components/ui/progress"
+import { Badge } from "../components/ui/badge"
+import Header from "../components/header"
+import { Skeleton } from "../components/ui/skeleton"
+import { Progress } from "../components/ui/progress"
 
 export default function DashboardPage() {
   const {
