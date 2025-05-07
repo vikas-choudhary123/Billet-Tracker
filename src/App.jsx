@@ -1,8 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { ThemeProvider } from "./components/theme-provider"
-import { AuthProvider } from "./lib/auth-context"
+import { AuthProvider, useAuth } from "./lib/auth-context"
 import { BilletDataProvider } from "./lib/billet-context"
 import { UserProvider } from "./lib/user-context"
+import { Toaster } from "./components/ui/toaster"
 
 import HomePage from "./pages/HomePage"
 import DashboardPage from "./pages/DashboardPage"
@@ -16,16 +17,36 @@ import TmtPlanningPage from "./pages/WorkflowTmtPlanningPage"
 import EntryPage from "./pages/EntryPage"
 
 // Protected route component
-const ProtectedRoute = ({ children }) => {
-  // This would normally check a real auth state
-  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true"
+const ProtectedRoute = ({ children, requiredPermission }) => {
+  const { isAuthenticated, hasPermission, isLoading } = useAuth();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />
+  // Show loading spinner while auth state is initializing
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
-  return children
-}
+  // Redirect to home page if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Check for required permission if specified
+  if (requiredPermission && !hasPermission(requiredPermission)) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+        <h1 className="text-2xl font-bold text-red-500 mb-4">Unauthorized</h1>
+        <p className="text-gray-500">You don't have permission to access this page.</p>
+      </div>
+    );
+  }
+
+  // User is authenticated and has required permission, render the children
+  return children;
+};
 
 function App() {
   return (
@@ -35,11 +56,14 @@ function App() {
           <BilletDataProvider>
             <Router>
               <Routes>
+                {/* Public route - Home/Login page */}
                 <Route path="/" element={<HomePage />} />
+                
+                {/* Protected routes with permission checks */}
                 <Route
                   path="/dashboard"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredPermission="dashboard">
                       <DashboardPage />
                     </ProtectedRoute>
                   }
@@ -47,7 +71,7 @@ function App() {
                 <Route
                   path="/receiving"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredPermission="receiving">
                       <ReceivingPage />
                     </ProtectedRoute>
                   }
@@ -55,7 +79,7 @@ function App() {
                 <Route
                   path="/tmt-production"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredPermission="production">
                       <TmtProductionPage />
                     </ProtectedRoute>
                   }
@@ -71,7 +95,7 @@ function App() {
                 <Route
                   path="/workflow/entry"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredPermission="production">
                       <WorkflowEntryPage />
                     </ProtectedRoute>
                   }
@@ -79,7 +103,7 @@ function App() {
                 <Route
                   path="/workflow/receiving"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredPermission="receiving">
                       <WorkflowReceivingPage />
                     </ProtectedRoute>
                   }
@@ -87,7 +111,7 @@ function App() {
                 <Route
                   path="/workflow/lab-testing"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredPermission="labTesting">
                       <LabTestingPage />
                     </ProtectedRoute>
                   }
@@ -95,7 +119,7 @@ function App() {
                 <Route
                   path="/workflow/tmt-planning"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredPermission="tmtPlanning">
                       <TmtPlanningPage />
                     </ProtectedRoute>
                   }
@@ -103,13 +127,19 @@ function App() {
                 <Route
                   path="/entry"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredPermission="production">
                       <EntryPage />
                     </ProtectedRoute>
                   }
                 />
+                
+                {/* Fallback route - redirect to homepage */}
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Router>
+            
+            {/* Toast notifications */}
+            <Toaster />
           </BilletDataProvider>
         </UserProvider>
       </AuthProvider>

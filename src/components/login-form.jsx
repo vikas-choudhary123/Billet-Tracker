@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../lib/auth-context"
 import { Button } from "./ui/button"
@@ -18,11 +18,31 @@ export default function LoginForm() {
   const navigate = useNavigate()
   const { toast } = useToast()
 
+  // Check if user is already authenticated
+  const { isAuthenticated } = useAuth()
+  
+  useEffect(() => {
+    // If user is already authenticated, redirect to dashboard
+    if (isAuthenticated) {
+      navigate("/dashboard")
+    }
+  }, [isAuthenticated, navigate])
+
   // Combine component's submitting state with auth context loading state
   const isButtonDisabled = isSubmitting || isLoading
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    if (!username || !password) {
+      toast({
+        variant: "destructive",
+        title: "Invalid input",
+        description: "Please enter both username and password.",
+      })
+      return
+    }
+    
     setIsSubmitting(true)
 
     try {
@@ -34,7 +54,11 @@ export default function LoginForm() {
           title: "Login successful",
           description: `Welcome back, ${username}!`,
         })
-        navigate("/dashboard")
+        
+        // Add a short delay before navigation to ensure context updates
+        setTimeout(() => {
+          navigate("/dashboard")
+        }, 300)
       } else {
         toast({
           variant: "destructive",
@@ -43,6 +67,7 @@ export default function LoginForm() {
         })
       }
     } catch (error) {
+      console.error("Login error:", error)
       toast({
         variant: "destructive",
         title: "Login error",

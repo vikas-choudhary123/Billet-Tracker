@@ -58,64 +58,92 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [users, setUsers] = useState(initialUsers)
   const [isLoading, setIsLoading] = useState(true)
+  const [initialized, setInitialized] = useState(false)
 
   // Check for existing session on mount
   useEffect(() => {
     const checkAuth = async () => {
-      setIsLoading(true)
-      const storedUser = localStorage.getItem("user")
-      if (storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser)
-          setUser(parsedUser)
-          setIsAuthenticated(true)
-        } catch (error) {
-          console.error("Failed to parse stored user:", error)
-          localStorage.removeItem("user")
+      try {
+        setIsLoading(true)
+        const storedUser = localStorage.getItem("user")
+        
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser)
+            setUser(parsedUser)
+            setIsAuthenticated(true)
+          } catch (error) {
+            console.error("Failed to parse stored user:", error)
+            localStorage.removeItem("user")
+          }
         }
+      } catch (err) {
+        console.error("Auth initialization error:", err)
+      } finally {
+        // Short delay to ensure smooth transition
+        setTimeout(() => {
+          setIsLoading(false)
+          setInitialized(true)
+        }, 100)
       }
-      // Short delay to ensure smooth transition
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      setIsLoading(false)
     }
 
     checkAuth()
   }, [])
 
   const login = async (username, password) => {
-    setIsLoading(true)
+    try {
+      setIsLoading(true)
 
-    // Add a small delay to simulate network request
-    await new Promise((resolve) => setTimeout(resolve, 300))
+      // Add a small delay to simulate network request
+      await new Promise((resolve) => setTimeout(resolve, 300))
 
-    // In a real app, this would be an API call
-    const foundUser = users.find((u) => u.username.toLowerCase() === username.toLowerCase() && u.password === password)
+      // In a real app, this would be an API call
+      const foundUser = users.find(
+        (u) => u.username.toLowerCase() === username.toLowerCase() && u.password === password
+      )
 
-    if (foundUser) {
-      setUser(foundUser)
-      setIsAuthenticated(true)
-      // Store user in localStorage (except password)
-      const { password: _, ...userWithoutPassword } = foundUser
-      localStorage.setItem("user", JSON.stringify(userWithoutPassword))
+      if (foundUser) {
+        // Store user in localStorage (except password)
+        const { password: _, ...userWithoutPassword } = foundUser
+        
+        // Update state first
+        setUser(userWithoutPassword)
+        setIsAuthenticated(true)
+        
+        // Then store in localStorage
+        localStorage.setItem("user", JSON.stringify(userWithoutPassword))
+        
+        return true
+      }
+
+      return false
+    } catch (error) {
+      console.error("Login error:", error)
+      return false
+    } finally {
       setIsLoading(false)
-      return true
     }
-
-    setIsLoading(false)
-    return false
   }
 
   const logout = async () => {
-    setIsLoading(true)
+    try {
+      setIsLoading(true)
 
-    // Add a small delay to simulate network request
-    await new Promise((resolve) => setTimeout(resolve, 300))
-
-    setUser(null)
-    setIsAuthenticated(false)
-    localStorage.removeItem("user")
-
-    setIsLoading(false)
+      // Clear state first
+      setUser(null)
+      setIsAuthenticated(false)
+      
+      // Then clear localStorage
+      localStorage.removeItem("user")
+      
+      return true
+    } catch (error) {
+      console.error("Logout error:", error)
+      return false
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const hasPermission = (permission) => {
@@ -167,18 +195,16 @@ export function AuthProvider({ children }) {
 
     // If the updated user is the current user, update the current user state
     if (user && user.id === id) {
-      setUser({
-        ...user,
-        ...updates,
-        permissions: updatedPermissions || user.permissions,
-      })
-
-      // Update localStorage
-      const { password: _, ...userWithoutPassword } = {
+      const updatedUser = {
         ...user,
         ...updates,
         permissions: updatedPermissions || user.permissions,
       }
+      
+      setUser(updatedUser)
+
+      // Update localStorage
+      const { password: _, ...userWithoutPassword } = updatedUser
       localStorage.setItem("user", JSON.stringify(userWithoutPassword))
     }
   }
@@ -212,6 +238,7 @@ export function AuthProvider({ children }) {
         updateUser,
         deleteUser,
         isLoading,
+        initialized,
       }}
     >
       {children}
